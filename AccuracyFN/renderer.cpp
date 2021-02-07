@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <math.h>
 int aimkey;
 int boxmodepos = 1;
@@ -155,8 +155,7 @@ namespace rend {
 			if (Color[0] < 0.0f) Color[0] += 1.0f;
 			ImGui::ColorConvertHSVtoRGB(Color[0], Color[1], Color[2], color_red, color_green, color_blue);	
 	}
-
-	VOID EndScene(ImGuiWindow& window) 
+	VOID EndScene(ImGuiWindow& window)
 	{
 		ColorChange();
 		window.DrawList->PushClipRectFullScreen();
@@ -165,201 +164,129 @@ namespace rend {
 		ImGui::PopStyleVar(2);
 
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.06f, 0.06f, 0.06f, 1.f));
+		ImGui::SetNextWindowSize(ImVec2(379, 900), ImGuiSetCond_FirstUseEver);
+
 		static int tab = 0;
 
-
-		//Menu::Drawing();
-		if (Settings.TeleportToEnemies) //must be done in render cuz it will crash on loop
-		{
-			if (hooks::LocalPlayerPawn && hooks::LocalPlayerController)
-			{
-				if (Util::SpoofCall(GetAsyncKeyState, Settings.EnemyTeleportKey))
-				{
-					if (InVehicle)
-					{
-						if (hooks::VehicleTargetPawn != nullptr)
-						{
-							hooks::Teleport(hooks::ClosestVehicle, ClosestPlayerCoords);
-						}
-					}
-				}
-			}
-		}
 		if (showMenu)
 		{
-			if (Settings.ColorAdjuster)
+			if (ImGui::Begin(xorstr("AccuracyFN 1.2v (LEGIT) & (RAGE)     [Leaked Version]"), 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize))
 			{
-				if (ImGui::Begin(xorstr("color adjuster"), 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize))
+				ImGui::Separator();
+
+				if (ImGui::Button("Join the community"))
 				{
-					ImGui::SetWindowPos(ImVec2(700, 50), ImGuiCond_FirstUseEver);
-					ImGui::SeparatorRainbow(color_red, color_green, color_blue);
-
-					ImGui::Columns(1, NULL, false);
-
-					ImGui::Text(xorstr("colors"));
-					ImGui::BeginChild(xorstr("##config_colors"), ImVec2(530, 350), true);
-
-					ImGui::ColorEdit4(xorstr("fov circle"), Settings.ESP.FovColor, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions);
-					ImGui::ColorEdit4(xorstr("target line"), Settings.ESP.TargetLineColor, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions);
-
-					ImGui::ColorEdit4(xorstr("nickname & weapon (visible)"), Settings.ESP.PlayerNameVisibleColor, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions);
-					ImGui::ColorEdit4(xorstr("nickname & weapon (invisible)"), Settings.ESP.PlayerNameNotVisibleColor, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions);
-
-					ImGui::ColorEdit4(xorstr("box (visible)"), Settings.ESP.BoxVisibleColor, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions);
-					ImGui::ColorEdit4(xorstr("box (invisible)"), Settings.ESP.BoxNotVisibleColor, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions);
-
-					ImGui::ColorEdit4(xorstr("snapline (visible)"), Settings.ESP.SnaplineVisibleColor, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions);
-					ImGui::ColorEdit4(xorstr("snapline (invisible)"), Settings.ESP.SnaplineNotVisibleColor, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions);
-
-					ImGui::ColorEdit4(xorstr("skeleton (visible)"), Settings.ESP.SkeletonVisibleColor, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions);
-					ImGui::ColorEdit4(xorstr("skeleton (invisible)"), Settings.ESP.SkeletonNotVisibleColor, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions);
-
-					ImGui::EndChild();
-					ImGui::End();
+					system("start https://discord.gg/");
 				}
-			}
-		
-			if (ImGui::Begin(xorstr("AccuracyFN With Out The Menu (aka neutron paste)"), 0, ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_::ImGuiWindowFlags_NoResize))
+				ImGui::Text("< BossyBoo2#3028 = Clown >");
+				ImGui::Text("< If you bought this you got scammed >");
 
-				ImGui::SeparatorRainbow(color_red, color_green, color_blue);
+				ImGui::Separator();
 
-			ImGui::Tab(0, xorstr("visuals"), &tab, 260);
-			ImGui::Tab(1, xorstr("aimbot"), &tab, 260);
-			ImGui::Tab(2, xorstr("misc"), &tab, 260);
+				ImGui::Text("< This cheat is pasted the owner is a skid >");
+				ImGui::Text("Join:https://discord.gg/XXTbCq8emn");
 
-			if (tab == 0)
-			{
-				ImGui::Columns(2, NULL, false);
+				ImGui::Separator();
 
-				ImGui::Text(xorstr("player visuals"));
-				ImGui::BeginChild(xorstr("player_esp_child"), ImVec2(390, 400), true);
+				ImGui::Text("AccuracyFN on Top!");
 
-				ImGui::Checkbox(xorstr("Player Names##checkbox"), &Settings.ESP.PlayerNames);
+				ImGui::Text("Enjoy AccuracyFN!");
 
-				ImGui::Checkbox(xorstr("Box ESP##checkbox"), &Settings.ESP.Boxes);
-				ImGui::Checkbox(xorstr("Skeleton ESP##checkbox"), &Settings.ESP.Skeletons);
-				ImGui::Checkbox(xorstr("Player Lines##checkbox"), &Settings.ESP.PlayerLines);
-				ImGui::Checkbox(xorstr("Bot ESP##checkbox"), &Settings.botesp);
-				ImGui::Checkbox(xorstr("Trading Bot ESP##checkbox"), &Settings.HenchMen);
+				ImGui::Separator();
 
+				ImGui::Checkbox("Aimbot", &Settings.Aimbot);
 
+				ImGui::Combo(xorstr("Aim Modes"), &Settings.AimbotModePos, aimmodes, sizeof(aimmodes) / sizeof(*aimmodes));
+				ImGui::SliderFloat(xorstr("Smooth##slider"), &Settings.AimbotSlow, 0.00f, 10.00f, xorstr("%.2f"));
+				ImGui::SliderFloat(xorstr("Aim Fov##slider"), &Settings.AimbotFOV, 80.0f, 200.0f, xorstr("%.2f"));
 
-				//HenchMen
+				ImGui::Separator();
 
-				ImGui::Combo(xorstr("box style"), &boxmodepos, boxmodes, sizeof(boxmodes) / sizeof(*boxmodes));
-				ImGui::Combo(xorstr("snapline start"), &Settings.SnaplineStartPoint, linemodes, sizeof(linemodes) / sizeof(*linemodes));
-
-				ImGui::EndChild();
-				ImGui::NextColumn();
-
-				ImGui::Text(xorstr("world visuals"));
-				ImGui::BeginChild(xorstr("world_esp_child"), ImVec2(390, 400), true);
-
-				ImGui::Checkbox(xorstr("Fishing Hole ESP"), &Settings.fishingholeesp);
-				ImGui::Checkbox(xorstr("Wepon ESP##checkbox"), &Settings.ESP.Weapons);
-				ImGui::Checkbox(xorstr("Ammo ESP##checkbox"), &Settings.ESP.Ammo);
-				ImGui::Checkbox(xorstr("Chest ESP##checkbox"), &Settings.ESP.Containers);
-				ImGui::Checkbox(xorstr("Ammo Box ESP##checkbox"), &Settings.ESP.AmmoBox);
-				ImGui::Checkbox(xorstr("Suppy Drop ESP##checkbox"), &Settings.ESP.SupplyDrops);
-				ImGui::Checkbox(xorstr("Llama ESP##checkbox"), &Settings.ESP.LLamas);
-				ImGui::Checkbox(xorstr("Vehicle ESP##checkbox"), &Settings.ESP.Vehicles);
-
-				ImGui::EndChild();
-			}
-
-			else if (tab == 1)
-			{
-				ImGui::Columns(2, NULL, false);
-
-				ImGui::Text(xorstr("aimbot options"));
-				ImGui::BeginChild(xorstr("##aimbot_main_child"), ImVec2(390, 400), true);
-
-				ImGui::Checkbox(xorstr("Aimbot##checkbox"), &Settings.Aimbot);
-				ImGui::Checkbox(xorstr("Draw Fov##checkbox"), &Settings.ESP.AimbotFOV);
-
-				ImGui::EndChild();
-				ImGui::NextColumn();
-
-				ImGui::Text(xorstr("aimbot adjust"));
-				ImGui::BeginChild(xorstr("##aimbot_adjust_child"), ImVec2(390, 400), true);
-
-				ImGui::Dummy(ImVec2(-15, 0)); ImGui::SameLine(); ImGui::Hotkey(xorstr(""), &Settings.AimKey, ImVec2(173, 0)); ImGui::SameLine(); ImGui::Text(xorstr("aimbot key"));
-				ImGui::SliderFloat(xorstr("Aimbot Fov##slider"), &Settings.AimbotFOV, 5.0f, 1337.0f, xorstr("%.2f"));
-				ImGui::SliderFloat(xorstr("smooth##slider"), &Settings.AimbotSlow, 0.00f, 1000.00f, xorstr("%.2f"));
-				ImGui::Combo(xorstr("Aim mode"), &Settings.AimbotModePos, aimmodes, sizeof(aimmodes) / sizeof(*aimmodes));
-
-				ImGui::EndChild();
-			}
-			else if (tab == 2)
-			{
-				ImGui::Columns(2, NULL, false);
-
-				ImGui::Text(xorstr("misc options"));
-				ImGui::BeginChild(xorstr("##misc_options_child"), ImVec2(390, 400), true);
-			//	ImGui::Checkbox(xorstr("airstuck##checkbox"), &Settings.AirStuck);
-			//	ImGui::Checkbox(xorstr("fast reload##checkbox"), &Settings.FastReload);
-			//	ImGui::Checkbox(xorstr("fast actions##checkbox"), &Settings.FastActions);
-				ImGui::Checkbox(xorstr("fov changer##checkbox"), &Settings.FovChanger);
-			//	ImGui::Checkbox(xorstr("spinbot##checkbox"), &Settings.Spinbot);
-				//	ImGui::Checkbox(xorstr("vehicle teleporter##checkbox"), &Settings.TeleportToEnemies);
-
-					//ImGui::Checkbox(xorstr("big players##checkbox"), &Settings.BigPlayers);
-
-				ImGui::Checkbox(xorstr("Speed hack (aka Vehicle boost is what it's called in AccuracyFN )##checkbox"), &Settings.CustomSpeedHack);
-				//ImGui::Checkbox(xorstr("vehicle teleporter##checkbox"), &Settings.VehicleTeleporter);
-
-				ImGui::Checkbox(xorstr("draw crosshair##checkbox"), &Settings.Crosshair);
-				ImGui::Checkbox(xorstr("color adjuster##checkbox"), &Settings.ColorAdjuster);
-
-
-				if (ImGui::Button(xorstr("set invisible"), ImVec2(112, 25)))
+				if (ImGui::CollapsingHeader("Player ESP"))
 				{
-					hooks::SetPlayerVisibility(1);
-				}
-				ImGui::SameLine();
-				if (ImGui::Button(xorstr("set visible"), ImVec2(112, 25)))
-				{
-					hooks::SetPlayerVisibility(0);
-				}
-				//	ImGui::Checkbox(xorstr("debug info##checkbox"), &Settings.Info);
-				//	ImGui::Checkbox(xorstr("debug##checkbox"), &Settings.ESP.debug2);
-				//	ImGui::Checkbox(xorstr("object debug##checkbox"), &Settings.ESP.debug);
+					ImGui::Separator();
 
-				ImGui::EndChild();
-				ImGui::NextColumn();
+					ImGui::Text("<Normal Player ESP>");
 
-				ImGui::Text(xorstr("misc adjust"));
-				ImGui::BeginChild(xorstr("##misc_adjust_child"), ImVec2(390, 400), true);
+					ImGui::Separator();
 
-				ImGui::SliderInt(xorstr("fov value##slider"), &Settings.FovValue, 80, 200, xorstr("%.2f"));
-				ImGui::SliderFloat(xorstr("Speed hack speed (aka Vehicle boost speed)##slider"), &Settings.CustomSpeedValue, 1, 500, xorstr("%.2f"));
-				ImGui::SliderInt(xorstr("crosshair thick##slider"), &Settings.CrosshairThickness, 1.0, 3.0, xorstr("%.2f"));
-				ImGui::SliderInt(xorstr("crosshair scale##slider"), &Settings.CrosshairScale, 5.0, 20.0, xorstr("%.2f"));
+					ImGui::Checkbox("Skeleton ESP", &Settings.ESP.Skeletons);
 
-		
+					ImGui::Checkbox("Box ESP", &Settings.ESP.Boxes);
 
-				ImGui::Dummy(ImVec2(-17, 0)); ImGui::SameLine(); ImGui::Hotkey(xorstr("  "), &Settings.CustomSpeedKeybind, ImVec2(173, 0)); ImGui::SameLine(); ImGui::Text(xorstr("speedhax key"));
+					ImGui::Checkbox("PlayerLines ESP", &Settings.ESP.PlayerLines);
 
-	
+					ImGui::Checkbox("PlayerNames ESP", &Settings.ESP.PlayerNames);
 
+					ImGui::Separator();
 
-				if (ImGui::Button(xorstr("save config"), ImVec2(112, 25)))
-				{
-					SettingsHelper::SaveConfig();
-				}
-				if (ImGui::Button(xorstr("load config"), ImVec2(112, 25)))
-				{
-					SettingsHelper::LoadSavedConfig();
+					ImGui::Text("<ESP for BAD PC's>");
+
+					ImGui::Separator();
+
+					ImGui::Checkbox("OneLine ESP (LessLag)", &Settings.ESP.PlayerLines);
+
+					ImGui::Checkbox("Player ESP TEXT (NoLag)", &Settings.ESP.PlayerNames);
+
+					ImGui::Separator();
+
+					ImGui::Text("<ESP for Ingame BOTS>");
+
+					ImGui::Separator();
+
+					ImGui::Checkbox("BOT ESP", &Settings.botesp);
+
+					ImGui::Checkbox("Trading BOT ESP", &Settings.HenchMen);
 				}
 
-				ImGui::EndChild();
+				if (ImGui::CollapsingHeader("World ESP"))
+				{
+					ImGui::Text("Soon...");
+				}
+
+				if (ImGui::CollapsingHeader("Crosshair Options"))
+				{
+					ImGui::Separator();
+
+					ImGui::Checkbox("Crosshair (Red)", &Settings.CrosshairRed);
+
+					ImGui::Checkbox("Crosshair (Green)", &Settings.CrosshairGreen);
+
+					ImGui::Checkbox("Crosshair (Blue)", &Settings.CrosshairBlue);
+
+					ImGui::Checkbox("Crosshair (Purple)", &Settings.CrosshairPurple);
+
+					ImGui::Separator();
+				}
+
+				if (ImGui::CollapsingHeader("<<RAGE OPTIONS>>"))
+				{
+					ImGui::Separator();
+					ImGui::Text("These options could get you banned!!");
+					ImGui::Text("Recommend to only use to troll kids");
+					ImGui::Separator();
+					ImGui::Checkbox("Spinbot", &Settings.Spinbot);
+					ImGui::Checkbox("No Spread", &Settings.NoSpreadAimbot);
+					ImGui::Separator();
+					ImGui::Checkbox("RapidFire (Light)", &Settings.RapidFire1);
+					ImGui::Checkbox("RapidFire (Mid)", &Settings.RapidFire2);
+					ImGui::Separator();
+					ImGui::Checkbox("VehicleBoost (Shift) FAST!", &Settings.VehicleBoost1);
+					ImGui::Checkbox("VehicleBoost (Shift) HELLAFAST!,(DETECTED)", &Settings.VehicleBoost2);
+			
+
+
+				
+				}
+
+				ImGui::Separator();
 			}
 			ImGui::End();
 		}
 		ImGui::PopStyleColor();
 		ImGui::Render();
 	}
-	
+
 
 	VOID AddLine(ImGuiWindow& window, float width, float height, float a[3], float b[3], ImU32 color, float& minX, float& maxX, float& minY, float& maxY) {
 		float ac[3] = { a[0], a[1], a[2] };
@@ -622,12 +549,27 @@ namespace rend {
 
 		if (!Settings.AutoAimbot && Settings.ESP.AimbotFOV) {
 
-			window.DrawList->AddCircle(ImVec2(width / 2, height / 2), Settings.AimbotFOV, ImGui::GetColorU32({ FovColor }), 128); //128
+			window.DrawList->AddCircle(ImVec2(width / 2, height / 2), Settings.AimbotFOV, ImColor(37, 150, 190), 128); //128
 		}
-		if (Settings.Crosshair)
+		if (Settings.CrosshairRed)
 		{
-			DrawLine(width / 2 - Settings.CrosshairScale, height / 2 - 0, width / 2 + Settings.CrosshairScale, height / 2 + 0, ImVec4(255, 255, 255, 255), Settings.CrosshairThickness); //white
-			DrawLine(width / 2 + 0, height / 2 - Settings.CrosshairScale, width / 2 - 0, height / 2 + Settings.CrosshairScale, ImVec4(255, 255, 255, 255), Settings.CrosshairThickness); //white		
+			DrawLine(width / 2 - Settings.CrosshairScale, height / 2 - 0, width / 2 + Settings.CrosshairScale, height / 2 + 0, ImVec4(255, 0, 0, 255), Settings.CrosshairThickness); //red
+			DrawLine(width / 2 + 0, height / 2 - Settings.CrosshairScale, width / 2 - 0, height / 2 + Settings.CrosshairScale, ImVec4(255, 0, 0, 255), Settings.CrosshairThickness); //red		
+		}
+		if (Settings.CrosshairGreen)
+		{
+			DrawLine(width / 2 - Settings.CrosshairScale, height / 2 - 0, width / 2 + Settings.CrosshairScale, height / 2 + 0, ImVec4(0, 255, 0, 255), Settings.CrosshairThickness); //green
+			DrawLine(width / 2 + 0, height / 2 - Settings.CrosshairScale, width / 2 - 0, height / 2 + Settings.CrosshairScale, ImVec4(0, 255, 0, 255), Settings.CrosshairThickness); //green		
+		}
+		if (Settings.CrosshairBlue)
+		{
+			DrawLine(width / 2 - Settings.CrosshairScale, height / 2 - 0, width / 2 + Settings.CrosshairScale, height / 2 + 0, ImVec4(0, 0, 255, 255), Settings.CrosshairThickness); //blue
+			DrawLine(width / 2 + 0, height / 2 - Settings.CrosshairScale, width / 2 - 0, height / 2 + Settings.CrosshairScale, ImVec4(0, 0, 255, 255), Settings.CrosshairThickness); //blue		
+		}
+		if (Settings.CrosshairPurple)
+		{
+			DrawLine(width / 2 - Settings.CrosshairScale, height / 2 - 0, width / 2 + Settings.CrosshairScale, height / 2 + 0, ImVec4(255, 0, 255, 255), Settings.CrosshairThickness); //purple
+			DrawLine(width / 2 + 0, height / 2 - Settings.CrosshairScale, width / 2 - 0, height / 2 + Settings.CrosshairScale, ImVec4(255, 0, 255, 255), Settings.CrosshairThickness); //purple		
 		}
 
 		if (Settings.WaterMark)
@@ -1893,7 +1835,7 @@ namespace rend {
 								auto end = *reinterpret_cast<FVector*>(root);
 								if (Util::WorldToScreen(width, height, &end.X))
 								{
-									window.DrawList->AddLine(ImVec2(width / 2, height), ImVec2(end.X, end.Y), SnaplineColor);
+									window.DrawList->AddLine(ImVec2(width / 2, height), ImVec2(end.X, end.Y), ImColor(37, 150, 190));
 								}
 							}
 							else if (Settings.SnaplineStartPoint == 1) //top
@@ -1902,7 +1844,7 @@ namespace rend {
 								auto end = *reinterpret_cast<FVector*>(head);
 								if (Util::WorldToScreen(width, height, &end.X))
 								{
-									window.DrawList->AddLine(ImVec2(width / 2, height / 20000), ImVec2(end.X, end.Y), SnaplineColor);
+									window.DrawList->AddLine(ImVec2(width / 2, height / 20000), ImVec2(end.X, end.Y), ImColor(37, 150, 190));
 								}
 							}
 							else if (Settings.SnaplineStartPoint == 2) //center
@@ -1910,7 +1852,7 @@ namespace rend {
 								auto end = *reinterpret_cast<FVector*>(body);
 								if (Util::WorldToScreen(width, height, &end.X))
 								{
-									window.DrawList->AddLine(ImVec2(width / 2, height / 2), ImVec2(end.X, end.Y), SnaplineColor);
+									window.DrawList->AddLine(ImVec2(width / 2, height / 2), ImVec2(end.X, end.Y), ImColor(37, 150, 190));
 								}
 							}
 						}
@@ -1958,7 +1900,7 @@ namespace rend {
 								}
 								else if (boxmodepos == 1) //cornered
 								{
-									DrawCorneredBox(headPos.X - (CornerWidth / 2), headPos.Y, CornerWidth, CornerHeight, BoxColor, 1.5);
+									DrawCorneredBox(headPos.X - (CornerWidth / 2), headPos.Y, CornerWidth, CornerHeight, ImColor(37, 150, 190), 1.5);
 								}
 								else if (boxmodepos == 2) //2d filled
 								{
@@ -2006,7 +1948,7 @@ namespace rend {
 											CHAR copy[0xFF] = { 0 };
 											wcstombs(copy, playerName.c_str(), sizeof(copy));
 											Util::FreeInternal(playerName.c_str());
-											DrawOutlinedText(m_pFont, TextFormat(xorstr("%s [%.0f m]"), copy, dist), ImVec2(headPos.X, headPos.Y - 20), 16.0f, NameColor, true);
+											DrawOutlinedText(m_pFont, TextFormat(xorstr("%s [%.0f m]"), copy, dist), ImVec2(headPos.X, headPos.Y - 20), 16.0f, ImColor(37, 150, 190), true);
 										}
 									}
 								}
@@ -2040,24 +1982,24 @@ namespace rend {
 						{
 
 
-							AddLine(window, width, height, head2, neck, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, neck, pelvis, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, chest, leftShoulder, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, chest, rightShoulder, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, leftShoulder, leftElbow, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, rightShoulder, rightElbow, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, leftElbow, leftHand, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, rightElbow, rightHand, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, pelvis, leftLeg, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, pelvis, rightLeg, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, leftLeg, leftThigh, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, rightLeg, rightThigh, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, leftThigh, leftFoot, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, rightThigh, rightFoot, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, leftFoot, leftFeet, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, rightFoot, rightFeet, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, leftFeet, leftFeetFinger, SkeletonColor, minX, maxX, minY, maxY);
-							AddLine(window, width, height, rightFeet, rightFeetFinger, SkeletonColor, minX, maxX, minY, maxY);
+							AddLine(window, width, height, head2, neck, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, neck, pelvis, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, chest, leftShoulder, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, chest, rightShoulder, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, leftShoulder, leftElbow, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, rightShoulder, rightElbow, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, leftElbow, leftHand, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, rightElbow, rightHand, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, pelvis, leftLeg, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, pelvis, rightLeg, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, leftLeg, leftThigh, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, rightLeg, rightThigh, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, leftThigh, leftFoot, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, rightThigh, rightFoot, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, leftFoot, leftFeet, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, rightFoot, rightFeet, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, leftFeet, leftFeetFinger, ImColor(37, 150, 190), minX, maxX, minY, maxY);
+							AddLine(window, width, height, rightFeet, rightFeetFinger, ImColor(37, 150, 190), minX, maxX, minY, maxY);
 						}
 					
 					}

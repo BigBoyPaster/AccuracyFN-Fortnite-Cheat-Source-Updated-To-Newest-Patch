@@ -1,5 +1,4 @@
-//AccuracyFN source leak aka neutron with out hes menu leaked by bunyip24#9999
-
+//Array#1337 https://discord.gg/qf3YGEX
 #include "stdafx.h"
 /*
 possible methods:
@@ -18,24 +17,31 @@ namespace hooks {
 	bool NoSpread = true;
 	bool IsLocalPlayerInVehicle = false;
 	PVOID LocalPlayerCurrentWeapon = nullptr;
+	PVOID localPlayerWeapon = 0;
 	PVOID LocalPlayerPawn = nullptr;
 	PVOID LocalPlayerController = nullptr;
 	PVOID LocalPosition = nullptr;
 	PVOID TargetPawn = nullptr;
+	PVOID MeatballVehicleConfigs = nullptr;
 	PVOID VehicleTargetPawn = nullptr;
 	PVOID ClosestVehicle = nullptr;
+	PVOID TargetBoat = nullptr;
 	PVOID LocalRootComp = nullptr;
 	PVOID PlayerCameraManager = nullptr;
-	FVector LocalplayerPosition = {0, 0, 0};
+	PVOID ClosestPawn1 = nullptr;
+	FVector LocalplayerPosition = { 0, 0, 0 };
 	FVector ClosestTargetCoord = { 0, 0, 0 };
-
+	FVector FreeCamPosition = { 0 };
 	float Distance = 0;
 	bool IsSniper = 0;
+	bool InVehicle;
+	FRotator LocalplayerRotation = { 0, 0, 0 };
+	PVOID CurrentVehicle = nullptr;
+	PVOID CurrentVehicle2 = nullptr;
 	PVOID(*ProcessEvent)(PVOID, PVOID, PVOID, PVOID) = nullptr;
 	float* (*CalculateShot)(PVOID, PVOID, PVOID) = nullptr;
-	VOID(*ReloadOriginal)(PVOID, PVOID) = nullptr;
 	PVOID(*GetWeaponStats)(PVOID) = nullptr;
-	//INT(*GetViewPoint)(PVOID, FMinimalViewInfo*, BYTE) = nullptr;
+	INT(*GetViewPoint)(PVOID, FMinimalViewInfo*, BYTE) = nullptr;
 
 	float originalReloadTime = 0.0f;
 
@@ -250,24 +256,114 @@ namespace hooks {
 		}
 	}
 
+	//void Teleport(PVOID Pawn, FVector Coords)
+	//{
+	//	if (FortniteHooking::LocalPlayerPawn && FortniteHooking::LocalPlayerController)
+	//	{
+	//		ProcessEvent(Pawn, addresses::K2_TeleportTo, &Coords, 0);
+	//	}
+	//}
+
+		//void Teleport2(FVector Coords)
+	//{
+	//	if (FortniteHooking::LocalPlayerPawn && FortniteHooking::LocalPlayerController)
+	//	{
+	//		ProcessEvent(FortniteHooking::LocalPlayerController, addresses::ClientSetLocation, &Coords, 0);
+	//	}
+	//}
+
 	void Teleport(PVOID Pawn, FVector Coords)
 	{
-		
+		if (hooks::LocalPlayerPawn && hooks::LocalPlayerController)
+		{
+			ProcessEvent(Pawn, /*addresses::LaunchCharacter*/addresses::K2_TeleportTo, &Coords, 0);
+		}
 	}
 
 	void Teleport2(FVector Coords)
 	{
 		if (hooks::LocalPlayerPawn && hooks::LocalPlayerController)
 		{
-			ProcessEvent(hooks::LocalPlayerController, addresses::ClientSetLocation, &Coords, 0);
+			ProcessEvent(hooks::LocalPlayerController, addresses::ClientSetLocation/*addresses::LaunchCharacter*/, &Coords, 0);
 		}
 	}
 
+	BOOL IsPawnInVehicle()
+	{
+		bool VehicleReturnValue;
+
+		if (LocalPlayerController)
+			ProcessEvent, (UObject*)LocalPlayerPawn, addresses::IsInVehicle, & VehicleReturnValue, 0;
+		else
+			VehicleReturnValue = false;
+
+		return VehicleReturnValue;
+	}
+
+	/*bool K2_TeleportTo(PVOID Actor, bool DestRotation, bool ReturnValue)
+	{
+		if (Actor != nullptr)
+		{
+			auto vtable = ReadPointer(Actor, 0);
+			if (!vtable) return false;
+
+			auto func ReadPointer(vtable, 0x4F8);
+			if (!func) return false;
+
+			auto K2_TeleportTo = reinterpret_cast<void(__fastcall*)(uintptr_t, bool, bool)>(func);
+
+			FortniteUtils::SpoofCall(K2_TeleportTo, (uintptr_t)Actor, DestRotation, ReturnValue);
+
+			return true;
+		}
+
+		return false;
+	}*/
+
+	bool K2_TeleportTo(PVOID Actor, FVector DestLocation, FRotator DestRotation)
+	{
+		if (Actor != nullptr)
+		{
+			auto vtable = ReadPointer(Actor, 0);
+			if (!vtable) return false;
+
+			auto func ReadPointer(vtable, 0x4F8);
+			if (!func) return false;
+
+			auto K2_TeleportTo = reinterpret_cast<void(__fastcall*)(uintptr_t, FVector, FRotator)>(func);
+
+			Util::SpoofCall(K2_TeleportTo, (uintptr_t)Actor, DestLocation, DestRotation);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool LaunchCharacter(PVOID Actor, FVector LaunchVelocity, bool bXYOverride, bool bZOverride)
+	{
+		if (Actor != nullptr)
+		{
+			auto vtable = ReadPointer(Actor, 0);
+			if (!vtable) return false;
+
+			auto func = ReadPointer(vtable, 0x7D0); //0x7C8
+			if (!func) return false;
+
+			auto LaunchCharacter = reinterpret_cast<void(__fastcall*)(uintptr_t, FVector, bool, bool)>(func);
+
+			Util::SpoofCall(LaunchCharacter, (uintptr_t)Actor, LaunchVelocity, bXYOverride, bZOverride);
+
+			return true;
+		}
+
+		return false;
+	}
+
+
+
 	uint64_t BaseAddr = (uint64_t)GetModuleHandleA(NULL);
 	int hitbox;
-
-
-
 
 	PVOID CalculateSpreadHook(PVOID arg0, float* arg1, float* arg2) {
 		if (originalReloadTime != 0.0f) {
@@ -290,16 +386,9 @@ namespace hooks {
 
 
 
-	
+
 
 	}
-
-
-
-
-
-
-
 
 	BOOLEAN GetTarget(FVector& out) {
 		if (!hooks::TargetPawn) {
@@ -359,39 +448,6 @@ namespace hooks {
 			auto funcName = Util::GetObjectFirstName(func);
 
 			do {
-
-				if (Settings.FastActions)
-				{
-					if (hooks::LocalPlayerPawn && hooks::LocalPlayerController)
-					{
-						if (Util::SpoofCall(GetAsyncKeyState, 0x45))
-						{
-							setAllToSpeed(220);
-						}
-						else
-						{
-							setAllToSpeed(1.0);
-						}
-					}
-				}
-
-				if (Settings.FastReload)
-				{
-					if (hooks::LocalPlayerPawn && hooks::LocalPlayerController)
-					{
-						if (Util::SpoofCall(GetAsyncKeyState, 0x52))
-						{
-							setAllToSpeed(200);
-						}
-						else
-						{
-							setAllToSpeed(1.0);
-						}
-					}
-				}
-
-
-
 				if (Settings.AirStuck)
 				{
 					if (hooks::LocalPlayerPawn && hooks::LocalPlayerController)
@@ -403,6 +459,67 @@ namespace hooks {
 						else
 						{
 							*reinterpret_cast<float*>(reinterpret_cast<PBYTE>(hooks::LocalPlayerPawn) + offsets::Actor::CustomTimeDilation) = 1;
+						}
+					}
+				}
+
+				if (Settings.RapidFire1)
+				{
+					if (hooks::LocalPlayerPawn && hooks::LocalPlayerController)
+					{
+						if (Util::SpoofCall(GetAsyncKeyState, VK_LBUTTON))
+						{
+							setAllToSpeed(3.0);
+						}
+						else
+						{
+							setAllToSpeed(1.0);
+						}
+					}
+				}
+
+
+				if (Settings.RapidFire2)
+				{
+					if (hooks::LocalPlayerPawn && hooks::LocalPlayerController)
+					{
+						if (Util::SpoofCall(GetAsyncKeyState, VK_LBUTTON))
+						{
+							setAllToSpeed(10.0);
+						}
+						else
+						{
+							setAllToSpeed(1.0);
+						}
+					}
+				}
+
+				if (Settings.VehicleBoost1)
+				{
+					if (hooks::LocalPlayerPawn && hooks::LocalPlayerController)
+					{
+						if (Util::SpoofCall(GetAsyncKeyState, VK_SHIFT))
+						{
+							setAllToSpeed(5.0);
+						}
+						else
+						{
+							setAllToSpeed(1.0);
+						}
+					}
+				}
+
+				if (Settings.VehicleBoost2)
+				{
+					if (hooks::LocalPlayerPawn && hooks::LocalPlayerController)
+					{
+						if (Util::SpoofCall(GetAsyncKeyState, VK_SHIFT))
+						{
+							setAllToSpeed(20.0);
+						}
+						else
+						{
+							setAllToSpeed(1.0);
 						}
 					}
 				}
@@ -434,6 +551,7 @@ namespace hooks {
 						setAllToSpeed(1.0);
 					}
 				}
+
 
 				if (Settings.BulletTP)
 				{
@@ -519,65 +637,49 @@ namespace hooks {
 					}
 				}
 
-				if (Settings.VehicleBoost)
-				{
-					if (hooks::LocalPlayerPawn)
-					{
-						if (hooks::IsLocalPlayerInVehicle)
-						{
-							//helicopter
-							*reinterpret_cast<float*>(reinterpret_cast<PBYTE>(hooks::ClosestVehicle) + 0x49f) = 1; //FortHoagieVehicleAnimInstance -> bIsBoostReady
-							*reinterpret_cast<float*>(reinterpret_cast<PBYTE>(hooks::ClosestVehicle) + 0x10fc) = 0.001; //FortHoagieVehicle -> BoostCooldown
-							*reinterpret_cast<float*>(reinterpret_cast<PBYTE>(hooks::ClosestVehicle) + 0x10f4) = 5; //FortHoagieVehicle -> BoostTimeLeft
-
-							//boat
-							*reinterpret_cast<float*>(reinterpret_cast<PBYTE>(hooks::ClosestVehicle) + 0x3f8) = 1; //FortMeatballVehicleAnimInstance -> bIsBoostReady
-						}
-					}
-				}
-
-				//FortniteGame.FortPlayerController.SetRotatePawnToCamera
-				//FortniteGame.FortPlayerController.SetFirstPersonCamera
-				//bPlayerOutlinesEnabled
-				//FortniteGame.FortClientSettingsRecord.SetPlayerOutlinesEnabled
-
-				if (hooks::LocalPlayerPawn && hooks::TargetPawn && hooks::LocalPlayerController)
-				{
-
-
-					if (!Settings.AimbotModePos == 1 && wcsstr(funcName.c_str(), L"Tick")) {
-						FVector head;
-						if (!GetTargetHead(head)) {
+				if (hooks::TargetPawn && hooks::LocalPlayerController) {
+					if (Settings.AimbotModePos == 0 && wcsstr(funcName.c_str(), xorstr(L"Tick"))) {
+						FVector CurrentAimPointer;
+						if (!GetTargetHead(CurrentAimPointer)) {
 							break;
 						}
 
-
-
 						float angles[2] = { 0 };
-						Util::CalcAngle(&Util::GetViewInfo().Location.X, &head.X, angles);
+						Util::CalcAngle(&Util::GetViewInfo().Location.X, &CurrentAimPointer.X, angles); //head instead of neck.X
 
 						if (Settings.AimbotSlow <= 0.0f) {
+							auto scale = Settings.AimbotSlow + 1.0f;
+							auto currentRotation = Util::GetViewInfo().Rotation;
+
 							FRotator args = { 0 };
-							args.Pitch = angles[0];
-							args.Yaw = angles[1];
-							ProcessEvent(hooks::LocalPlayerController, addresses::SetControlRotation, &args, 0);
+							args.Pitch = (angles[0] - currentRotation.Pitch) / scale + currentRotation.Pitch;
+							args.Yaw = (angles[1] - currentRotation.Yaw) / scale + currentRotation.Yaw;
+							ProcessEvent(hooks::LocalPlayerController, addresses::ClientSetRotation, &args, 0);
 						}
-					
-						
+						else {
+							auto scale = Settings.AimbotSlow + 1.0f;
+							auto currentRotation = Util::GetViewInfo().Rotation;
+
+							FRotator args = { 0 };
+							args.Pitch = (angles[0] - currentRotation.Pitch) / scale + currentRotation.Pitch;
+							args.Yaw = (angles[1] - currentRotation.Yaw) / scale + currentRotation.Yaw;
+							ProcessEvent(hooks::LocalPlayerController, addresses::ClientSetRotation, &args, 0);
+
+						}
 					}
 				}
-
-
 			} while (FALSE);
-		
 		}
 
 		return ProcessEvent(object, func, params, result);
 	}
 
-	float* CalculateShotHook(PVOID arg0, PVOID arg1, PVOID arg2) {
+
+	float* CalculateShotHook(PVOID arg0, PVOID arg1, PVOID arg2)
+	{
 		auto ret = CalculateShot(arg0, arg1, arg2);
-		if (ret && Settings.AimbotModePos == 1 && hooks::TargetPawn && hooks::LocalPlayerPawn)
+
+		if (ret && Settings.AimbotModePos == 0 && hooks::TargetPawn && hooks::LocalPlayerPawn)
 		{
 			if (Settings.HitBoxPos == 0) //head
 			{
@@ -647,39 +749,87 @@ namespace hooks {
 			}
 		}
 
+
+		if (ret && Settings.noclip/*Settings.AimbotModePos == 2*/ && hooks::TargetPawn && hooks::LocalPlayerPawn)
+		{
+			if (Settings.HitBoxPos == 0) //head
+			{
+				hitbox = 66;
+			}
+			else if (Settings.HitBoxPos == 1)
+			{
+				hitbox = 65;
+			}
+			else if (Settings.HitBoxPos == 2)
+			{
+				hitbox = 5;
+			}
+
+			else if (Settings.HitBoxPos == 3)
+			{
+				hitbox = 2;
+			}
+			auto mesh = ReadPointer(hooks::TargetPawn, offsets::Character::Mesh);
+			if (!mesh) return ret;
+
+			auto bones = ReadPointer(mesh, offsets::StaticMeshComponent::StaticMesh);
+			if (!bones) bones = ReadPointer(mesh, offsets::StaticMeshComponent::StaticMesh + 0x10);
+			if (!bones) return ret;
+
+			float compMatrix[4][4] = { 0 };
+			Util::ToMatrixWithScale(reinterpret_cast<float*>(reinterpret_cast<PBYTE>(mesh) + offsets::StaticMeshComponent::ComponentToWorld), compMatrix);
+
+			FVector head = { 0 };
+			Util::GetBoneLocation(compMatrix, bones, hitbox, &head.X);
+
+			auto rootPtr = Util::GetPawnRootLocation(hooks::LocalPlayerPawn);
+			if (!rootPtr) return ret;
+			auto root = *rootPtr;
+
+			auto dx = head.X - root.X;
+			auto dy = head.Y - root.Y;
+			auto dz = head.Z - root.Z;
+
+
+			ret[4] = head.X;
+			ret[5] = head.Y;
+			ret[6] = head.Z;
+
+			head.Z -= 15.0f;
+
+			head.X -= 15.0f;
+			head.Y -= 15.0f;
+
+			root.Z += 45.0f;
+
+			auto y = atan2f(head.Y - root.Y, head.X - root.X);
+
+			root.X += cosf(y + 1.5708f) * 32.0f;
+			root.Y += sinf(y + 1.5708f) * 32.0f;
+
+
+			ret[4] = head.X;
+			ret[5] = head.Y;
+			ret[6] = head.Z;
+
+			auto length = Util::SpoofCall(sqrtf, powf(head.X - root.X, 2) + powf(head.Y - root.Y, 2));
+			auto x = -atan2f(head.Z - root.Z, length);
+			y = atan2f(head.Y - root.Y, head.X - root.X);
+
+			x /= 2.0f;
+			y /= 2.0f;
+
+			ret[0] = -(sinf(x) * sinf(y));
+			ret[1] = sinf(x) * cosf(y);
+			ret[2] = cosf(x) * sinf(y);
+			ret[3] = cosf(x) * cosf(y);
+		}
+
 		return ret;
 	}
 	static float OldPitch = Util::GetViewInfo().Rotation.Pitch;
 
-	INT GetViewPointHook(PVOID player, FMinimalViewInfo* viewInfo, BYTE stereoPass)
-	{
-		//int fovval;
-		//if (Settings.FovChanger)
-	//	{
-		//	fovval = Settings.FovValue;
-	//	}
-		//else
-	//	{
-		//	fovval = 80;
-	//	}
-	//	const float upperFOV = 50.534008f;
-	//	const float lowerFOV = 40.0f;
 
-	//	auto ret = GetViewPoint(player, viewInfo, stereoPass);
-
-	//	auto fov = viewInfo->FOV;
-	//	auto desired = (((180.0f - upperFOV) / (180.0f - 80.0f)) * (fovval - 80.0f)) + upperFOV;
-
-	//	if (fov > upperFOV) {
-	//		fov = desired;
-		//}
-		//else if (fov > lowerFOV) {
-	//		fov = (((fov - lowerFOV) / (upperFOV - lowerFOV)) * (desired - lowerFOV)) + lowerFOV;
-	//	}
-	//	viewInfo->FOV = fov;
-
-	//	return ret;
-	}
 
 	BOOLEAN Initialize()
 	{
@@ -689,13 +839,14 @@ namespace hooks {
 
 		// ProcessEvent
 		addr = Util::FindPattern(xorstr("\x40\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8D\x6C\x24\x00\x48\x89\x9D\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC5\x48\x89\x85\x00\x00\x00\x00\x8B\x41\x0C\x45\x33\xF6\x3B\x05\x00\x00\x00\x00\x4D\x8B\xF8\x48\x8B\xF2\x4C\x8B\xE1\x41\xB8\x00\x00\x00\x00\x7D\x2A"), xorstr("xxxxxxxxxxxxxxx????xxxx?xxx????xxx????xxxxxx????xxxxxxxx????xxxxxxxxxxx????xx"));
-		MH_CreateHook(addr, ProcessEventHook, (PVOID *)&ProcessEvent);
+		MH_CreateHook(addr, ProcessEventHook, (PVOID*)&ProcessEvent);
 		MH_EnableHook(addr);
-		
+
 		// CalculateShot
 		addr = Util::FindPattern("\x48\x89\x5C\x24\x00\x4C\x89\x4C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xF9\x4C\x8D\x6C\x24\x00", "xxxx?xxxx?xxxxxxxxxxxxxxx?xxx????xxxxxxx?");
 		MH_CreateHook(addr, CalculateShotHook, (PVOID*)&CalculateShot);
 		MH_EnableHook(addr);
+
 
 		//CalculateSpread
 		addr = Util::FindPattern("\x83\x79\x78\x00\x4C\x8B\xC9\x75\x0F\x0F\x57\xC0\xC7\x02\x00\x00\x00\x00\xF3\x41\x0F\x11\x00\xC3\x48\x8B\x41\x70\x8B\x48\x04\x89\x0A\x49\x63\x41\x78\x48\x6B\xC8\x1C\x49\x8B\x41\x70\xF3\x0F\x10\x44\x01\x00\xF3\x41\x0F\x11\x00\xC3", "xxxxxxxxxxxxxx????xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx?xxxxxx");
@@ -715,18 +866,10 @@ namespace hooks {
 			return FALSE;
 		}
 
-
 		calculateSpreadCaller = addr;
 
 
-	
-
-		// GetViewPoint
-	//	addr = Util::FindPattern(xorstr("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xD9\x41\x8B\xF0\x48\x8B\x49\x30\x48\x8B\xFA\xE8\x00\x00\x00\x00\xBA\x00\x00\x00\x00\x48\x8B\xC8"), xorstr("xxxx?xxxx?xxxxxxxxxxxxxxxxxxx????x????xxx"));
-	//	MH_CreateHook(addr, GetViewPointHook, (PVOID*)&GetViewPoint);
-	//	MH_EnableHook(addr);
-
-	    // Init speedhack
+		// Init speedhack
 		MainGay();
 
 		return TRUE;

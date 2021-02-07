@@ -21,6 +21,7 @@ typedef struct neutronpasta{
 	bool HeadDotSize;
 	bool realplayertags;
 	float FOV;
+	bool noclip;
 	bool Crosshair;
 	bool WaterMark;
 	bool slowmo;
@@ -30,6 +31,14 @@ typedef struct neutronpasta{
     int watermarky;
 	int triggerspeed;
 	bool FastReload;
+	bool VehicleBoost1;
+	bool VehicleBoost2;
+	bool RapidFire1;
+	bool RapidFire2;
+	bool CrosshairRed;
+	bool CrosshairGreen;
+	bool CrosshairBlue;
+	bool CrosshairPurple;
 	bool HenchMen;
 	bool triggerbot;
 	bool FastActions;
